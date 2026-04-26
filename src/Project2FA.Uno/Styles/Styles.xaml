@@ -488,7 +488,6 @@
                         <TextBlock x:Name="PlaceholderTextBlock"
                             Opacity="0"
                             Text="Xg"
-                            Foreground="{x:Null}"
                             Margin="{TemplateBinding Padding}"
                             IsHitTestVisible="False"
                             AutomationProperties.AccessibilityView="Raw" />

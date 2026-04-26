@@ -7,6 +7,9 @@ using Windows.Foundation;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+#if NET10_0_OR_GREATER
+using WinRT;
+#endif
 using Path = Windows.UI.Xaml.Shapes.Path;
 #else
 using Microsoft.UI.Xaml;
@@ -53,6 +56,9 @@ namespace Project2FA.Controls
 
         public SweepDirection SweepDirection 
         {
+#if NET10_0_OR_GREATER && WINDOWS_UWP
+            [DynamicWindowsRuntimeCast(typeof(SweepDirection))]
+#endif
             get { return (SweepDirection)GetValue(SweepDirectionProperty); }
             set { SetValue(SweepDirectionProperty, value); }
         }

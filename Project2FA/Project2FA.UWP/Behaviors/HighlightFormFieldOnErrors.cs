@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+#if NET10_0_OR_GREATER
+using WinRT;
+#endif
+
 
 namespace Project2FA.UWP.Behaviors
 {
@@ -45,6 +49,9 @@ namespace Project2FA.UWP.Behaviors
         protected static DependencyProperty OriginalStyleNameProperty =
             DependencyProperty.RegisterAttached(nameof(OriginalStyleName), typeof(Style), typeof(HighlightFormFieldOnErrors), new PropertyMetadata("DefaultTextBoxStyle"));
 
+#if NET10_0_OR_GREATER
+        [DynamicWindowsRuntimeCast(typeof(Style))]
+#endif
         private static void OnPropertyErrorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
         {
             if (args == null || args.NewValue == null)

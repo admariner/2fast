@@ -68,6 +68,8 @@ namespace Project2FA.UWP
         {
             TrackingManager.TrackUnobservedTaskException("UnobservedTaskException", e);
             SettingsService.Instance.UnhandledExceptionStr += e.Exception.ToString() + e.Exception.InnerException + e.Exception.StackTrace;
+            var logger = App.Current.Container.Resolve<ILoggingService>();
+            logger.LogException(e.Exception, LoggingPreferEnum.Simple);
             // let the app crash...
         }
 
@@ -75,6 +77,8 @@ namespace Project2FA.UWP
         {
             TrackingManager.TrackUnhandledException(nameof(App_UnhandledException), e);
             SettingsService.Instance.UnhandledExceptionStr += e.Exception.ToString() + e.Exception.InnerException + e.Exception.StackTrace + e.Message;
+            var logger = App.Current.Container.Resolve<ILoggingService>();
+            logger.LogException(e.Exception, LoggingPreferEnum.Simple);
             // let the app crash...
         }
 

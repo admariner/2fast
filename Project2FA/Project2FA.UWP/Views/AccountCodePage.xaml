@@ -20,6 +20,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="using:Project2FA.Helpers"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:appbehaviors="using:Project2FA.UWP.Behaviors"
     x:Name="Page"
     mc:Ignorable="d">
 
@@ -623,10 +624,10 @@
                                     </TextBlock.RenderTransform>
                                     <interactivity:Interaction.Behaviors>
                                         <interactivity:DataTriggerBehavior Binding="{x:Bind Seconds,Mode=OneWay}" ComparisonCondition="LessThan" Value="3">
-                                            <interactivity:ControlStoryboardAction Storyboard="{StaticResource TextChangeAnimation}"/>
+                                            <appbehaviors:SafeControlStoryboardAction Storyboard="{StaticResource TextChangeAnimation}"/>
                                         </interactivity:DataTriggerBehavior>
                                         <interactivity:DataTriggerBehavior Binding="{x:Bind Seconds,Mode=OneWay}" ComparisonCondition="GreaterThan" Value="3">
-                                            <interactivity:ControlStoryboardAction Storyboard="{StaticResource TextChangeNormal}"/>
+                                            <appbehaviors:SafeControlStoryboardAction Storyboard="{StaticResource TextChangeNormal}"/>
                                         </interactivity:DataTriggerBehavior>
                                     </interactivity:Interaction.Behaviors>
                                 </TextBlock>
@@ -861,10 +862,10 @@
                                     </TextBlock.RenderTransform>
                                     <interactivity:Interaction.Behaviors>
                                         <interactivity:DataTriggerBehavior Binding="{x:Bind Seconds,Mode=OneWay}" ComparisonCondition="LessThan" Value="3">
-                                            <interactivity:ControlStoryboardAction Storyboard="{StaticResource TextChangeAnimation}"/>
+                                            <appbehaviors:SafeControlStoryboardAction Storyboard="{StaticResource TextChangeAnimation}"/>
                                         </interactivity:DataTriggerBehavior>
                                         <interactivity:DataTriggerBehavior Binding="{x:Bind Seconds,Mode=OneWay}" ComparisonCondition="GreaterThan" Value="3">
-                                            <interactivity:ControlStoryboardAction Storyboard="{StaticResource TextChangeNormal}"/>
+                                            <appbehaviors:SafeControlStoryboardAction Storyboard="{StaticResource TextChangeNormal}"/>
                                         </interactivity:DataTriggerBehavior>
                                     </interactivity:Interaction.Behaviors>
                                 </TextBlock>
