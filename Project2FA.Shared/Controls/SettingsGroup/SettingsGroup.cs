@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
+#if NET10_0_OR_GREATER
+using WinRT;
+#endif
 #else
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
@@ -39,7 +43,7 @@ namespace Project2FA.Controls
         }
 
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
-            "Header",
+            nameof(Header),
             typeof(string),
             typeof(SettingsGroup),
             new PropertyMetadata(default(string)));
@@ -52,11 +56,14 @@ namespace Project2FA.Controls
         }
 
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            "Description",
+            nameof(Description),
             typeof(object),
             typeof(SettingsGroup),
             new PropertyMetadata(null, OnDescriptionChanged));
 
+#if WINDOWS_UWP && NET10_0_OR_GREATER
+        [DynamicWindowsRuntimeCast(typeof(ContentPresenter))]
+#endif
         protected override void OnApplyTemplate()
         {
             IsEnabledChanged -= SettingsGroup_IsEnabledChanged;

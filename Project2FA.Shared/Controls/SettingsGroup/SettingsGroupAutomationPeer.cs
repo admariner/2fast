@@ -9,7 +9,7 @@ using Microsoft.UI.Xaml.Automation.Peers;
 
 namespace Project2FA.Controls
 {
-    public class SettingsGroupAutomationPeer : FrameworkElementAutomationPeer
+    public partial class SettingsGroupAutomationPeer : FrameworkElementAutomationPeer
     {
         public SettingsGroupAutomationPeer(SettingsGroup owner)
             : base(owner)

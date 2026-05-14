@@ -1,6 +1,4 @@
-﻿using OtpNet;
-using Project2FA.Core.Services.Crypto;
-using Project2FA.Helpers;
+﻿using Project2FA.Core.Services.Crypto;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
