@@ -353,13 +353,19 @@ namespace Project2FA.ViewModels
             //prevent the acccess for other Threads
             for (int i = 0; i < TwoFADataService.Collection.Count; i++)
             {
-                TwoFADataService.Collection[i].Seconds -= TwoFADataService.TOTPEventStopwatch.Elapsed.TotalSeconds; // elapsed time (seconds) from the last event call
-                if (Convert.ToInt32(TwoFADataService.Collection[i].Seconds) <= 0)
+                // Calculate remaining seconds directly from UTC epoch boundary — no drift accumulation.
+                double remaining = DataService.Instance.GetRemainingSeconds(TwoFADataService.Collection[i].Period);
+                if (Convert.ToInt32(remaining) <= 0 ||
+                    (Convert.ToInt32(TwoFADataService.Collection[i].Seconds) <= 0 && remaining > TwoFADataService.Collection[i].Period - 1))
                 {
                     await DataService.Instance.GenerateTOTP(i);
                 }
+                else
+                {
+                    TwoFADataService.Collection[i].Seconds = remaining;
+                }
             }
-            TwoFADataService.TOTPEventStopwatch.Restart(); // reset the added time from the stopwatch => time+ / event
+            TwoFADataService.TOTPEventStopwatch.Restart();
         }
 
         /// <summary>

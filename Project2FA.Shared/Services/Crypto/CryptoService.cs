@@ -128,6 +128,33 @@ namespace Project2FA.Core.Services.Crypto
 #endif
         }
 
+        /// <summary>
+        /// Derives a key using PBKDF2-SHA256 with a per-file random salt (16 bytes).
+        /// Use for Version 3+ datafiles. The salt must be stored in the DatafileModel.
+        /// </summary>
+        public static byte[] CreateByteArrayKeyV3(byte[] secretByteArray, byte[] salt, int keyByteSize = 32, int iterations = 25000)
+        {
+            if (salt == null || salt.Length < 16)
+                throw new ArgumentException("Salt must be at least 16 bytes.", nameof(salt));
+#if NET9_0_OR_GREATER
+            return Rfc2898DeriveBytes.Pbkdf2(secretByteArray, salt, iterations, HashAlgorithmName.SHA256, keyByteSize);
+#else
+            var keyGenerator = new Rfc2898DeriveBytes(secretByteArray, salt, iterations, HashAlgorithmName.SHA256);
+            return keyGenerator.GetBytes(keyByteSize);
+#endif
+        }
+
+        /// <summary>
+        /// Generates a cryptographically random 16-byte salt for use with V3 datafiles.
+        /// </summary>
+        public static byte[] GenerateRandomSalt(int byteSize = 16)
+        {
+            byte[] salt = new byte[byteSize];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(salt);
+            return salt;
+        }
+
         public static string CreateStringHash(string input)
         {
             // https://stackoverflow.com/questions/17292366/hashing-with-sha1-algorithm-in-c-sharp

@@ -13,6 +13,7 @@ using UNOversal.Services.File;
 using UNOversal.Navigation;
 using UNOversal.Services.Dialogs;
 using Project2FA.Core;
+using Project2FA.Core.Services.Crypto;
 using UNOversal.Services.Logging;
 using Project2FA.Services;
 using UNOversal.Services.Serialization;
@@ -173,7 +174,7 @@ namespace Project2FA.ViewModels
                 DateFileName += ".2fa";
             }
 
-            DatafileModel model = new DatafileModel() { IV = Aes.Create().IV, Collection = new System.Collections.ObjectModel.ObservableCollection<TwoFACodeModel>(), Version = 2 };
+            DatafileModel model = new DatafileModel() { IV = Aes.Create().IV, Salt = CryptoService.GenerateRandomSalt(), Collection = new System.Collections.ObjectModel.ObservableCollection<TwoFACodeModel>(), Version = 3 };
             if (isWebDAV)
             {
                 LocalStorageFolder = ApplicationData.Current.LocalFolder;

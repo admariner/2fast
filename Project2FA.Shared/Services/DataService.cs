@@ -450,6 +450,10 @@ namespace Project2FA.Services
                             {
                                 algorithm.Key = CryptoService.CreateByteArrayKeyV1(byteArrayKey);
                             }
+                            else if (datafile.Version >= 3 && datafile.Salt != null)
+                            {
+                                algorithm.Key = CryptoService.CreateByteArrayKeyV3(byteArrayKey, datafile.Salt);
+                            }
                             else
                             {
                                 algorithm.Key = CryptoService.CreateByteArrayKeyV2(byteArrayKey);
@@ -692,12 +696,12 @@ namespace Project2FA.Services
             Foundation.NSUrl nsUrl = null;
 #endif
 
-            // load the current file to allow the reset of the file
+            // keep an in-memory backup of the last valid encrypted content for error recovery
+            string encryptedBackup = string.Empty;
             DatafileModel datafile = new DatafileModel();
+            await CollectionAccessSemaphore.WaitAsync();
             try
             {
-                await CollectionAccessSemaphore.WaitAsync();
-
                 Aes algorithm = Aes.Create();
 
                 string passwordHashName = ActivatedDatafile != null ?
@@ -714,8 +718,10 @@ namespace Project2FA.Services
                     tempCategories.Add((CategoryModel)GlobalCategories[i].Clone());
                 }
                 // create the new datafile model
-                DatafileModel fileModel = new DatafileModel() { IV = algorithm.IV, Collection = Collection, Version = 2, GlobalCategories = tempCategories };
-                
+                // Reuse existing salt if present (V3 already), otherwise generate a new random salt for V3 migration
+                byte[] fileSalt = datafile.Salt ?? CryptoService.GenerateRandomSalt();
+                DatafileModel fileModel = new DatafileModel() { IV = algorithm.IV, Salt = fileSalt, Collection = Collection, Version = 3, GlobalCategories = tempCategories };
+
                 if (ActivatedDatafile != null)
                 {
 #if WINDOWS_UWP
@@ -752,53 +758,47 @@ namespace Project2FA.Services
 #endif
                 }
 
-                // backup the last version before write
-                string datafileStr = await FileService.ReadStringAsync(fileName, folder);
-                datafile = SerializationService.Deserialize<DatafileModel>(datafileStr);
-
+                // read the current encrypted file content as backup before overwriting
+                encryptedBackup = await FileService.ReadStringAsync(fileName, folder);
+                datafile = SerializationService.Deserialize<DatafileModel>(encryptedBackup);
 
                 if (ActivatedDatafile != null)
                 {
 #if WINDOWS_UWP
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(ProtectData.Unprotect(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName))));
-                    await FileService.WriteStringAsync(
-                        fileName,
-                        SerializationCryptoService.SerializeEncrypt(
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(ProtectData.Unprotect(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName))), fileSalt);
+                    string encryptedContent = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
                             algorithm.IV,
                             fileModel,
-                            fileModel.Version),
-                        folder);
+                            fileModel.Version);
+                    await WriteAtomicAsync(encryptedContent, fileName, folder);
 #else
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)));
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)), fileSalt);
                     string content = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
                             algorithm.IV,
                             fileModel,
                             fileModel.Version);
 #if __ANDROID__
-                    // create new thread for buggy Android, else NetworkOnMainThreadException 
+                    // Atomic write via LocalFolder temp file, then move to target (Android: direct write as fallback)
                     await Task.Run(async () => {
                         await FileIO.WriteTextAsync(ActivatedDatafile, content);
                     });
 #else
-                    await FileIO.WriteTextAsync(ActivatedDatafile, content);
+                    await WriteAtomicAsync(content, fileName, folder);
 #endif
-
 #endif
                 }
                 else
                 {
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(Encoding.UTF8.GetBytes(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)));
-#if WINDOWS_UWP
-                    await FileService.WriteStringAsync(
-                        fileName,
-                        SerializationCryptoService.SerializeEncrypt(
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(Encoding.UTF8.GetBytes(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)), fileSalt);
+                    string encryptedContent = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
-                            algorithm.IV, 
+                            algorithm.IV,
                             fileModel,
-                            fileModel.Version),
-                        folder);
+                            fileModel.Version);
+#if WINDOWS_UWP
+                    await WriteAtomicAsync(encryptedContent, fileName, folder);
 #else
 #if __IOS__
                     if (!Foundation.NSFileManager.DefaultManager.IsWritableFile(nsUrl.Path))
@@ -806,25 +806,16 @@ namespace Project2FA.Services
                         nsUrl.StartAccessingSecurityScopedResource();
                     }
 #endif
-                    //var fileStream = await file.OpenStreamForWriteAsync();
-                    string content = SerializationCryptoService.SerializeEncrypt(
-                            algorithm.Key,
-                            algorithm.IV,
-                            fileModel,
-                            fileModel.Version);
 #if __ANDROID__
                     // create new thread for buggy Android, else NetworkOnMainThreadException 
                     await Task.Run(async () => {
-                        await FileIO.WriteTextAsync(file, content);
+                        await FileIO.WriteTextAsync(file, encryptedContent);
                     });
 #else
-                    await FileIO.WriteTextAsync(file, content);
+                    await WriteAtomicAsync(encryptedContent, fileName, folder);
 #endif
-
 #endif
-
                 }
-
 
                 if (SettingsService.Instance.DataFileWebDAVEnabled && ActivatedDatafile == null)
                 {
@@ -844,34 +835,39 @@ namespace Project2FA.Services
 
                 }
                 Messenger.Send(new DatafileWriteStatusChangedMessage(true));
-                CollectionAccessSemaphore.Release();
             }
             catch (Exception exc)
             {
-                CollectionAccessSemaphore.Release();
                 await LoggingService.LogException(exc, SettingsService.Instance.LoggingSetting);
 #if WINDOWS_UWP
                 TrackingManager.TrackExceptionCatched(nameof(WriteLocalDatafile), exc);
 #endif
-                await HandleWriteError(datafile,fileName,folder);
+                await HandleWriteError(encryptedBackup, fileName, folder);
+            }
+            finally
+            {
+                CollectionAccessSemaphore.Release();
             }
         }
 
-        private async Task HandleWriteError(DatafileModel datafile, string fileName, StorageFolder folder, int count = 0)
+        private async Task HandleWriteError(string encryptedBackup, string fileName, StorageFolder folder, int attempt = 0)
         {
-            var restoreSuccess = await RestoreLastDatafile(datafile, fileName, folder);
+            if (string.IsNullOrEmpty(encryptedBackup))
+            {
+                await Utils.ErrorDialogs.WritingFatalRestoreError();
+                return;
+            }
+            bool restoreSuccess = await RestoreLastDatafile(encryptedBackup, fileName, folder);
             if (restoreSuccess)
             {
                 await Utils.ErrorDialogs.WritingDatafileError(false);
             }
             else
             {
-                if (count < 3)
+                if (attempt < 3)
                 {
-                    await Task.Delay(250);
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    HandleWriteError(datafile, fileName, folder, count + 1);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    await Task.Delay(250 * (attempt + 1));
+                    await HandleWriteError(encryptedBackup, fileName, folder, attempt + 1);
                 }
                 else
                 {
@@ -880,15 +876,16 @@ namespace Project2FA.Services
             }
         }
 
-        private async Task<bool> RestoreLastDatafile(DatafileModel datafile, string fileName, StorageFolder folder)
+        /// <summary>
+        /// Restores the datafile from the raw encrypted backup string.
+        /// The semaphore must NOT be held by the caller.
+        /// </summary>
+        private async Task<bool> RestoreLastDatafile(string encryptedBackup, string fileName, StorageFolder folder)
         {
             try
             {
                 await CollectionAccessSemaphore.WaitAsync();
-                await FileService.WriteStringAsync(
-                    fileName,
-                    SerializationService.Serialize(datafile),
-                    folder);
+                await FileService.WriteStringAsync(fileName, encryptedBackup, folder);
                 return true;
             }
             catch (Exception exc)
@@ -903,6 +900,33 @@ namespace Project2FA.Services
             {
                 CollectionAccessSemaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// Writes <paramref name="content"/> atomically to <paramref name="targetFolder"/>/<paramref name="fileName"/>
+        /// by first writing to a temporary file in LocalFolder, then moving it to the target location.
+        /// This ensures the original file is never left in a partially-written state.
+        /// </summary>
+        private async Task WriteAtomicAsync(string content, string fileName, StorageFolder targetFolder)
+        {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            string tempFileName = fileName + ".tmp";
+
+            // Step 1: Write to temp file in LocalFolder (safe, app always has write access)
+            StorageFile tempFile = await localFolder.CreateFileAsync(tempFileName, CreationCollisionOption.ReplaceExisting);
+            try
+            {
+                await FileIO.WriteTextAsync(tempFile, content);
+            }
+            catch
+            {
+                // Clean up incomplete temp file so no leftover exists; original file is untouched
+                try { await tempFile.DeleteAsync(StorageDeleteOption.PermanentDelete); } catch { /* ignore */ }
+                throw;
+            }
+
+            // Step 2: Move temp file to target folder, replacing the original (atomic on same volume)
+            await tempFile.MoveAsync(targetFolder, fileName, NameCollisionOption.ReplaceExisting);
         }
 
         public async Task<bool> AddAccountsToCollection(List<TwoFACodeModel> accountList)
@@ -1008,6 +1032,20 @@ namespace Project2FA.Services
                     await ErrorDialogs.SecretKeyError(Collection[i].Label).ConfigureAwait(false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Calculates the remaining seconds for a TOTP entry directly from UTC,
+        /// so the countdown is always in sync with the TOTP epoch boundary — no drift.
+        /// </summary>
+        public double GetRemainingSeconds(int period)
+        {
+            DateTime now = _checkedTimeSynchronisation && _ntpServerTimeDifference.TotalMilliseconds > 0
+                ? DateTime.UtcNow.AddMilliseconds(_ntpServerTimeDifference.TotalMilliseconds)
+                : DateTime.UtcNow;
+
+            double elapsed = (now.Ticks - unixEpochTicks) / (double)ticksToSeconds % period;
+            return period - elapsed;
         }
 
         public string GetIconForLabel(string label)
