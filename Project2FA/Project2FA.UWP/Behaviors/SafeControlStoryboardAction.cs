@@ -1,6 +1,7 @@
 using Microsoft.Xaml.Interactivity;
 using System;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using WinRT;
 
@@ -32,6 +33,14 @@ namespace Project2FA.UWP.Behaviors
         public object Execute(object sender, object parameter)
         {
             if (Storyboard == null)
+            {
+                return false;
+            }
+
+            // If the sender is a UI element that is no longer in the visual tree,
+            // skip execution to avoid a native COM crash in .NET Native / AOT
+            // (McgMarshal.ThrowOnExternalCallFailed) that bypasses managed catch blocks.
+            if (sender is FrameworkElement fe && VisualTreeHelper.GetParent(fe) == null)
             {
                 return false;
             }
