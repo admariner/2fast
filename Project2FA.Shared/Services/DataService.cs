@@ -717,10 +717,9 @@ namespace Project2FA.Services
                 {
                     tempCategories.Add((CategoryModel)GlobalCategories[i].Clone());
                 }
-                // create the new datafile model
-                // Reuse existing salt if present (V3 already), otherwise generate a new random salt for V3 migration
-                byte[] fileSalt = datafile.Salt ?? CryptoService.GenerateRandomSalt();
-                DatafileModel fileModel = new DatafileModel() { IV = algorithm.IV, Salt = fileSalt, Collection = Collection, Version = 3, GlobalCategories = tempCategories };
+                // create the new datafile model (Version 2; V3 with per-file salt will be introduced in a future release)
+                //byte[] fileSalt = datafile.Salt ?? CryptoService.GenerateRandomSalt();
+                DatafileModel fileModel = new DatafileModel() { IV = algorithm.IV, Collection = Collection, Version = 2, GlobalCategories = tempCategories };
 
                 if (ActivatedDatafile != null)
                 {
@@ -765,7 +764,7 @@ namespace Project2FA.Services
                 if (ActivatedDatafile != null)
                 {
 #if WINDOWS_UWP
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(ProtectData.Unprotect(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName))), fileSalt);
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(ProtectData.Unprotect(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName))));
                     string encryptedContent = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
                             algorithm.IV,
@@ -773,7 +772,7 @@ namespace Project2FA.Services
                             fileModel.Version);
                     await WriteAtomicAsync(encryptedContent, fileName, folder);
 #else
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)), fileSalt);
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(SerializationService.Deserialize<byte[]>(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)));
                     string content = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
                             algorithm.IV,
@@ -791,7 +790,7 @@ namespace Project2FA.Services
                 }
                 else
                 {
-                    algorithm.Key = CryptoService.CreateByteArrayKeyV3(Encoding.UTF8.GetBytes(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)), fileSalt);
+                    algorithm.Key = CryptoService.CreateByteArrayKeyV2(Encoding.UTF8.GetBytes(SecretService.Helper.ReadSecret(Constants.ContainerName, passwordHashName)));
                     string encryptedContent = SerializationCryptoService.SerializeEncrypt(
                             algorithm.Key,
                             algorithm.IV,

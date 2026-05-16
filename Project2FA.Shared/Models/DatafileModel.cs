@@ -15,6 +15,9 @@ namespace Project2FA.Repository.Models
         /// </summary>
         public byte[]? Salt { get; set; }
 
+        /// <summary>
+        /// Version number of the datafile format. 0/1/2 = legacy (static salt), 3+ = new (per-file salt, SHA256, 25000 iterations).
+        /// </summary>
         public int Version { get; set; }
     }
 }
