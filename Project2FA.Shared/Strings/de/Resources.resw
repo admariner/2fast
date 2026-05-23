@@ -715,8 +715,8 @@ Bitte synchronisieren Sie die Uhrzeit in den Einstellungen.</value>
     <value>Für die Überprüfung der korrekten Uhrzeit des Systems kann ein NTP Server verwendet werden. Bei einer größeren Abweichung der Uhrzeit würde die Erstellung der Codes für die Accounts nicht mehr korrekt sein. Falls eine Abweichung größer als dreißig Sekunden besteht, würde eine Benachrichtigung erscheinen und die Erstellung der Codes mit der Uhrzeit des NTP Servers erfolgen.</value>
   </data>
   <data name="NewAppFeaturesContent" xml:space="preserve">
-    <value>- Aktualisierung von Bibliotheken von Drittanbietern
-- Fehlerbehebungen und Optimierungen</value>
+    <value>- Aktualisierung der Bibliotheken von Drittanbietern
+- Fehlerkorrekturen und Optimierung</value>
   </data>
   <data name="NewAppFeaturesTitle" xml:space="preserve">
     <value>Neue Funktionen &amp; Änderungen</value>
@@ -1287,7 +1287,7 @@ Derzeit verfügbar:
     <value>Vollständig</value>
   </data>
   <data name="SettingsLoggingNone.Content" xml:space="preserve">
-    <value>Keine Protokollierung</value>
+    <value>Keine</value>
   </data>
   <data name="SettingsLoggingSimple.Content" xml:space="preserve">
     <value>Nur Fehler</value>

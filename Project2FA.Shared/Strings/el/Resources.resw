@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -720,7 +720,7 @@
   </data>
   <data name="NewAppFeaturesContent" xml:space="preserve">
     <value>- Ενημέρωση βιβλιοθηκών τρίτων
-- Διόρθωση σφαλμάτων και βελτιστοποίηση</value>
+- Διορθώσεις σφαλμάτων και βελτιστοποίηση</value>
     <comment>[ReswT:always]</comment>
   </data>
   <data name="NewAppFeaturesTitle" xml:space="preserve">

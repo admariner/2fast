@@ -69,8 +69,9 @@ namespace Project2FA.Services
             if (string.IsNullOrEmpty(value))
                 return string.Empty;
 
-            // Deserialize from json
-            return JsonSerializer.Deserialize<object>(value, Settings);
+            // Use source-generated type info for object (JsonElement) to stay AOT-safe.
+            var typeInfo = Settings.GetTypeInfo(typeof(object));
+            return JsonSerializer.Deserialize(value, typeInfo);
         }
 
         /// <summary>

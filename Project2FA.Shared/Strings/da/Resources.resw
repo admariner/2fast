@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -719,8 +719,7 @@ Synkroniser venligst tiden i indstillingerne.</value>
   </data>
   <data name="NewAppFeaturesContent" xml:space="preserve">
     <value>- Opdatering af tredjepartsbiblioteker
-- Fejlrettelser og optimering
-</value>
+- Fejlrettelser og optimering</value>
     <comment>[ReswT:always]</comment>
   </data>
   <data name="NewAppFeaturesTitle" xml:space="preserve">

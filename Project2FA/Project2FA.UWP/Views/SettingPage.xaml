@@ -263,8 +263,8 @@
                                                             IsOn="{x:Bind ViewModel.SettingsPartViewModel.UseCompactDesign, Mode=TwoWay}"/>
                                                     </Grid>
                                                 </ctwc:SettingsCard.Content>
-                                            </ctwc:SettingsCard>
-                                            <ctwc:SettingsCard
+                                            </ctwc:SettingsCard>-->
+                                            <!--<ctwc:SettingsCard
                                             x:Uid="SettingsAppFontSize"
                                             HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}"
                                             Header="~SettingsAppFontSize.Header">

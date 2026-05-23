@@ -3,7 +3,9 @@ using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+#if NET10_0_OR_GREATER
 using WinRT;
+#endif
 
 namespace Project2FA.UWP.Behaviors
 {

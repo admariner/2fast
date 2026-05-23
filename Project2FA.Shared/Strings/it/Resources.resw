@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -722,7 +722,7 @@ Sincronizzare l'ora nelle impostazioni.</value>
   </data>
   <data name="NewAppFeaturesContent" xml:space="preserve">
     <value>- Aggiornamento delle librerie di terze parti
-- Correzioni di bug e ottimizzazione</value>
+- Correzione di bug e ottimizzazione</value>
     <comment>[ReswT:always]</comment>
   </data>
   <data name="NewAppFeaturesTitle" xml:space="preserve">

@@ -24,7 +24,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>B472586BCD48D121FC788F14D0747AC054D4773F</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>35D754E8113EFF01266CE1A79DD7837E1C6F399F</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>

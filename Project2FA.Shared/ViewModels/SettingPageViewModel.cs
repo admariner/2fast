@@ -697,6 +697,17 @@ namespace Project2FA.ViewModels
 
 
             }
+
+#if WINDOWS_UWP
+            // ThemeResource bindings in the visual tree are only re-evaluated in UWP
+            // when RequestedTheme changes. ResetSystemTheme toggles the theme without
+            // writing AppTheme back to LocalSettings.
+            //var settings = SettingsService.Instance;
+            //var current = settings.OriginalAppTheme;
+            //var opposite = current == ApplicationTheme.Dark ? ApplicationTheme.Light : ApplicationTheme.Dark;
+            //settings.ResetSystemTheme(opposite);
+            //settings.ResetSystemTheme(current);
+#endif
         }
 
         public bool ShowAvailableProFeatures

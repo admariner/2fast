@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -721,7 +721,7 @@
     <value>NTPサーバーを使用して、システムの正しい時刻をチェックすることができる。時刻にそれ以上のずれがある場合、アカウントのコード作成はもはや正しくない。30秒以上のずれがある場合、通知が表示され、NTPサーバーの時刻でコードの作成が行われる。</value>
   </data>
   <data name="NewAppFeaturesContent" xml:space="preserve">
-    <value>- サードパーティ製ライブラリの更新
+    <value>- サードパーティ製ライブラリのアップデート
 - バグ修正と最適化</value>
     <comment>[ReswT:always]</comment>
   </data>
