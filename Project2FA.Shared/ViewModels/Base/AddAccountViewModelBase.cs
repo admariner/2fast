@@ -748,7 +748,8 @@ namespace Project2FA.ViewModels
                                     Options = new BarcodeReaderOptions
                                     {
                                         TryHarder = true,
-                                        AutoRotate = true
+                                        AutoRotate = true,
+                                        TryInverted = true
                                     }
                                 };
                                 var decodedStr = barcodeReader.Decode(luminanceSource);
