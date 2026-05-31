@@ -219,6 +219,7 @@
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\it\Resources.resw" />
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\ja\Resources.resw" />
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\nb\Resources.resw" />
+    <PRIResource Include="$(MSBuildThisFileDirectory)Strings\pl\Resources.resw" />
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\pt-br\Resources.resw" />
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\pt-pt\Resources.resw" />
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\sv\Resources.resw" />

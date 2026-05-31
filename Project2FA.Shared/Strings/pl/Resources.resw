@@ -1146,7 +1146,7 @@ Popraw czas w ustawieniach urządzenia.</value>
     <value>Otwórz samouczek</value>
   </data>
   <data name="TutorialContentDialogHowTheAppWorks.Text" xml:space="preserve">
-    <value>Funkcjonalność [uwierzytelniania](https://en.wikipedia.org/wiki/Authentication) duetapowego logowania jest realizowana za pomocą jednorazowego hasła czasowego. W tym celu serwer logowania usługi i użytkownik uzgadniają tajny klucz konfiguracyjny, który jest przechowywany lokalnie w aplikacji. Gwarantuje to, że po ustawieniu klucza konfiguracyjnego aplikacja zawsze będzie mogła działać w trybie offline.
+    <value>Funkcjonalność [uwierzytelniania](https://pl.wikipedia.org/wiki/Uwierzytelnianie) duetapowego logowania jest realizowana za pomocą jednorazowego hasła czasowego. W tym celu serwer logowania usługi i użytkownik uzgadniają tajny klucz konfiguracyjny, który jest przechowywany lokalnie w aplikacji. Gwarantuje to, że po ustawieniu klucza konfiguracyjnego aplikacja zawsze będzie mogła działać w trybie offline.
 
 
 
